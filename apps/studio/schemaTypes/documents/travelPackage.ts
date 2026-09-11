@@ -1,0 +1,270 @@
+import {defineArrayMember, defineField, defineType} from 'sanity'
+import {PackageIcon} from '@sanity/icons'
+
+export const travelPackage = defineType({
+  name: 'travelPackage',
+  title: 'Travel Packages',
+  type: 'document',
+  icon: PackageIcon,
+  groups: [
+    {name: 'overview', title: 'Overview & Media'},
+    {name: 'itinerary', title: 'Itinerary & Stays'},
+    {name: 'inclusions', title: 'Inclusions & Exclusions'},
+    {name: 'pricing', title: 'Pricing & Booking'},
+    {name: 'related', title: 'Related & FAQs'},
+    {name: 'seo', title: 'SEO'},
+  ],
+  fields: [
+    defineField({
+      name: 'title',
+      title: 'Package Title',
+      type: 'string',
+      group: 'overview',
+      validation: (rule) => rule.required(),
+    }),
+    defineField({
+      name: 'slug',
+      title: 'Slug',
+      type: 'slug',
+      group: 'overview',
+      options: {
+        source: 'title',
+        maxLength: 96,
+      },
+      validation: (rule) => rule.required(),
+    }),
+    defineField({
+      name: 'packageCode',
+      title: 'Package Code',
+      type: 'string',
+      group: 'overview',
+      description: 'e.g. HF-AND-01, HF-BALI-04',
+    }),
+    defineField({
+      name: 'destination',
+      title: 'Destination',
+      type: 'reference',
+      to: [{type: 'destination'}],
+      group: 'overview',
+      validation: (rule) => rule.required(),
+    }),
+    defineField({
+      name: 'packageType',
+      title: 'Package Primary Type',
+      type: 'string',
+      group: 'overview',
+      options: {
+        list: [
+          {title: 'Domestic Tour', value: 'Domestic Tour'},
+          {title: 'International Tour', value: 'International Tour'},
+          {title: 'Honeymoon & Luxury', value: 'Honeymoon & Luxury'},
+          {title: 'Family Holiday', value: 'Family Holiday'},
+          {title: 'Heritage & Nature', value: 'Heritage & Nature'},
+          {title: 'Beach & Backwaters', value: 'Beach & Backwaters'},
+          {title: 'Adventure & Trekking', value: 'Adventure'},
+        ],
+      },
+      initialValue: 'Domestic Tour',
+    }),
+    defineField({
+      name: 'categories',
+      title: 'Package Tags & Themes',
+      type: 'array',
+      group: 'overview',
+      of: [defineArrayMember({type: 'string'})],
+      options: {
+        layout: 'tags',
+      },
+    }),
+    defineField({
+      name: 'status',
+      title: 'Package Status',
+      type: 'string',
+      group: 'overview',
+      options: {
+        list: [
+          {title: 'Active & Bookable', value: 'active'},
+          {title: 'Draft / In Review', value: 'draft'},
+          {title: 'Sold Out / Booking Closed', value: 'sold-out'},
+          {title: 'Seasonal', value: 'seasonal'},
+        ],
+      },
+      initialValue: 'active',
+    }),
+    defineField({
+      name: 'featured',
+      title: 'Feature on Homepage & Spotlight Sections',
+      type: 'boolean',
+      group: 'overview',
+      initialValue: false,
+    }),
+    defineField({
+      name: 'duration',
+      title: 'Duration (e.g. 4 N / 5 D or 5 Days / 4 Nights)',
+      type: 'string',
+      group: 'overview',
+      validation: (rule) => rule.required(),
+      initialValue: '4 N / 5 D',
+    }),
+    defineField({
+      name: 'rating',
+      title: 'Customer Rating (e.g. 4.8)',
+      type: 'number',
+      group: 'overview',
+      initialValue: 4.8,
+    }),
+    defineField({
+      name: 'reviewCount',
+      title: 'Number of Verified Reviews',
+      type: 'number',
+      group: 'overview',
+      initialValue: 24,
+    }),
+    defineField({
+      name: 'hero',
+      title: 'Hero / Main Banner Image',
+      type: 'imageWithAlt',
+      group: 'overview',
+      validation: (rule) => rule.required(),
+    }),
+    defineField({
+      name: 'gallery',
+      title: 'Package Photo Gallery',
+      type: 'array',
+      group: 'overview',
+      of: [defineArrayMember({type: 'imageWithAlt'})],
+    }),
+    defineField({
+      name: 'summary',
+      title: 'Package Summary / Highlights Overview',
+      type: 'text',
+      group: 'overview',
+      rows: 4,
+    }),
+    defineField({
+      name: 'highlights',
+      title: 'Top Trip Highlights',
+      type: 'array',
+      group: 'overview',
+      of: [defineArrayMember({type: 'string'})],
+    }),
+    // ITINERARY GROUP
+    defineField({
+      name: 'itinerary',
+      title: 'Day-by-Day Itinerary (Ordered Days)',
+      description: 'Reference each day document in order.',
+      type: 'array',
+      group: 'itinerary',
+      of: [defineArrayMember({type: 'reference', to: [{type: 'itineraryDay'}]})],
+    }),
+    defineField({
+      name: 'hotels',
+      title: 'Included / Recommended Hotels & Resorts',
+      type: 'array',
+      group: 'itinerary',
+      of: [defineArrayMember({type: 'reference', to: [{type: 'hotel'}]})],
+    }),
+    defineField({
+      name: 'activities',
+      title: 'Included / Optional Activities',
+      type: 'array',
+      group: 'itinerary',
+      of: [defineArrayMember({type: 'reference', to: [{type: 'activity'}]})],
+    }),
+    defineField({
+      name: 'transfers',
+      title: 'Complete Transport & Route Transfers',
+      type: 'array',
+      group: 'itinerary',
+      of: [defineArrayMember({type: 'transfer'})],
+    }),
+    // INCLUSIONS GROUP
+    defineField({
+      name: 'inclusions',
+      title: 'Package Inclusions',
+      type: 'array',
+      group: 'inclusions',
+      of: [defineArrayMember({type: 'string'})],
+    }),
+    defineField({
+      name: 'exclusions',
+      title: 'Package Exclusions',
+      type: 'array',
+      group: 'inclusions',
+      of: [defineArrayMember({type: 'string'})],
+    }),
+    defineField({
+      name: 'importantNotes',
+      title: 'Important Travel Notes & Guidelines',
+      type: 'array',
+      group: 'inclusions',
+      of: [defineArrayMember({type: 'string'})],
+    }),
+    defineField({
+      name: 'cancellationPolicy',
+      title: 'Cancellation & Refund Policy',
+      type: 'array',
+      group: 'inclusions',
+      of: [defineArrayMember({type: 'string'})],
+    }),
+    // PRICING & BOOKING
+    defineField({
+      name: 'pricing',
+      title: 'Active Pricing Plan',
+      type: 'reference',
+      group: 'pricing',
+      to: [{type: 'pricing'}],
+    }),
+    defineField({
+      name: 'bookingCta',
+      title: 'Custom Booking & Inquiry CTA',
+      type: 'contactCta',
+      group: 'pricing',
+    }),
+    // RELATED & FAQS
+    defineField({
+      name: 'relatedPackages',
+      title: 'Similar / Recommended Packages',
+      type: 'array',
+      group: 'related',
+      of: [defineArrayMember({type: 'reference', to: [{type: 'travelPackage'}]})],
+    }),
+    defineField({
+      name: 'testimonials',
+      title: 'Traveler Reviews & Testimonials',
+      type: 'array',
+      group: 'related',
+      of: [defineArrayMember({type: 'reference', to: [{type: 'testimonial'}]})],
+    }),
+    defineField({
+      name: 'faqs',
+      title: 'Package Specific FAQs',
+      type: 'array',
+      group: 'related',
+      of: [defineArrayMember({type: 'reference', to: [{type: 'faq'}]})],
+    }),
+    // SEO
+    defineField({
+      name: 'seo',
+      title: 'SEO Settings',
+      type: 'seo',
+      group: 'seo',
+    }),
+  ],
+  preview: {
+    select: {
+      title: 'title',
+      destination: 'destination.name',
+      duration: 'duration',
+      media: 'hero',
+    },
+    prepare(selection) {
+      const {title, destination, duration, media} = selection
+      return {
+        title: title || 'Travel Package',
+        subtitle: `${destination || 'Destination'} • ${duration || ''}`,
+        media,
+      }
+    },
+  },
+})
