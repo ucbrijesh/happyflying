@@ -76,10 +76,22 @@ happyflying/
 │       ├── sanity.config.ts    # Studio configuration & plugins
 │       ├── sanity.cli.ts       # Sanity CLI & TypeGen configuration
 │       └── seed-data.ndjson    # Complete Andaman seed dataset
+├── docs/                       # Project Documentation
+│   ├── developer-guide.md      # Technical architecture & developer handbook
+│   ├── editor-guide.md         # CMS editor & content manager manual
+│   └── launch-guide.md         # Step-by-step production launch & go-live checklist
 │
 └── packages/
     └── types/                  # Shared TypeScript models across web & studio
 ```
+
+---
+
+## 📚 Documentation & Guides
+
+- 👨‍💻 **[Developer Guide](file:///d:/websites/happyflying/docs/developer-guide.md)**: Technical architecture, environment variables, Sanity TypeGen, GROQ query patterns, and image handling.
+- ✍️ **[Content Editor Guide](file:///d:/websites/happyflying/docs/editor-guide.md)**: Step-by-step guide for publishing packages, destinations, itineraries, hotel profiles, and updating site settings.
+- 🚀 **[Production Launch Guide](file:///d:/websites/happyflying/docs/launch-guide.md)**: Pre-launch verification, Sanity Studio deployment, Vercel setup, custom domain DNS, and post-launch QA.
 
 ---
 

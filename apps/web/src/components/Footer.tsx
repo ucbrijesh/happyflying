@@ -18,9 +18,13 @@ export function Footer({settings}: FooterProps) {
       <div className="max-w-7xl mx-auto grid gap-10 sm:grid-cols-2 lg:grid-cols-4">
         {/* Brand Column */}
         <div className="space-y-4">
-          <Link href="/" className="inline-flex items-center gap-2 group">
-            <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-gradient-to-tr from-sky-600 to-indigo-600 text-white shadow">
-              <Plane className="h-5 w-5 text-[#F3B604] transform -rotate-45" />
+          <Link href="/" className="inline-flex items-center gap-3 group">
+            <div className="relative h-11 w-auto flex items-center justify-center bg-white rounded-xl p-1 shadow-sm">
+              <img
+                src="/happyflyinglogo.avif"
+                alt="HappyFlying Tours & Travels"
+                className="h-9 w-auto object-contain"
+              />
             </div>
             <span className="font-extrabold text-xl tracking-tight text-white">
               HAPPY<span className="text-[#F3B604]">FLYING</span>

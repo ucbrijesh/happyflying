@@ -19,18 +19,24 @@ import {
   getAllDestinations,
   getTestimonials,
 } from '@/lib/sanity/fetch'
+import {ALL_PACKAGES, ALL_DESTINATIONS} from '@/lib/data/packagesData'
 import {PackageCard} from '@/components/PackageCard'
 import {DestinationCard} from '@/components/DestinationCard'
 import {PartnerMarquee} from '@/components/PartnerMarquee'
 import {TestimonialSlider} from '@/components/TestimonialSlider'
 
 export default async function HomePage() {
-  const [settings, featuredPackages, destinations, testimonials] = await Promise.all([
+  const [settings, liveFeatured, liveDestinations, testimonials] = await Promise.all([
     getSiteSettings(),
     getFeaturedPackages(),
     getAllDestinations(),
     getTestimonials(),
   ])
+
+  const featuredPackages =
+    liveFeatured.length > 0 ? liveFeatured : ALL_PACKAGES.filter((p) => p.featured).slice(0, 6)
+  const destinations =
+    liveDestinations.length > 0 ? liveDestinations : ALL_DESTINATIONS.slice(0, 6)
 
   const whatsappNumber = settings.whatsapp ? settings.whatsapp.replace(/[^0-9]/g, '') : '919900113691'
   const phone = settings.phone || '+91 9900113691'

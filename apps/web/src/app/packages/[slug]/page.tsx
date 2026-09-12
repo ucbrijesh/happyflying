@@ -19,6 +19,7 @@ import {
 import {client} from '@/sanity/client'
 import {PACKAGE_BY_SLUG_QUERY, PACKAGE_SLUGS_QUERY} from '@/lib/sanity/queries'
 import {getPackageBySlug, getSiteSettings} from '@/lib/sanity/fetch'
+import {ALL_PACKAGES} from '@/lib/data/packagesData'
 import {SanityImage} from '@/components/SanityImage'
 import {ItineraryTimeline} from '@/components/ItineraryTimeline'
 import {InclusionsExclusions} from '@/components/InclusionsExclusions'
@@ -34,41 +35,45 @@ export async function generateStaticParams() {
     const slugs = await client
       .withConfig({useCdn: false})
       .fetch<{slug: string}[]>(PACKAGE_SLUGS_QUERY)
-    return slugs.map((item) => ({
-      slug: item.slug,
-    }))
+    
+    const set = new Set<string>()
+    if (Array.isArray(slugs)) {
+      slugs.forEach((item) => {
+        if (item?.slug) set.add(item.slug)
+      })
+    }
+    ALL_PACKAGES.forEach((p) => {
+      if (p.slug?.current) set.add(p.slug.current)
+    })
+    return Array.from(set).map((slug) => ({slug}))
   } catch {
-    return [{slug: 'andaman-trip'}]
+    return ALL_PACKAGES.map((p) => ({slug: p.slug.current}))
   }
 }
 
 export async function generateMetadata({params}: PackagePageProps): Promise<Metadata> {
   const {slug} = await params
   const pkg = await getPackageBySlug(slug)
+  const fallbackPkg = ALL_PACKAGES.find((p) => p.slug.current === slug)
+  const target = pkg || fallbackPkg
 
-  if (!pkg) {
-    if (slug === 'andaman-trip') {
-      return {
-        title: 'Andaman Trip — 5D/4N Island Holiday Package',
-        description: 'Explore Andaman with private AC cabs, Makruzz cruise, Radhanagar sunset, and Elephant beach snorkeling.',
-      }
-    }
+  if (!target) {
     return {title: 'Tour Package Not Found — HappyFlying'}
   }
 
-  const seo = pkg.seo
+  const seo = target.seo
   return {
-    title: seo?.metaTitle || `${pkg.title} — HappyFlying Tours & Travels`,
-    description: seo?.metaDescription || pkg.summary || `Book ${pkg.title} with HappyFlying Tours & Travels`,
-    keywords: seo?.keywords || [pkg.title, pkg.destination?.name || 'Andaman', 'holiday package'],
+    title: seo?.metaTitle || `${target.title} — HappyFlying Tours & Travels`,
+    description: seo?.metaDescription || target.summary || `Book ${target.title} with HappyFlying Tours & Travels`,
+    keywords: seo?.keywords || [target.title, target.destination?.name || 'Travel', 'holiday package'],
     openGraph: {
-      title: seo?.metaTitle || pkg.title,
-      description: seo?.metaDescription || pkg.summary,
+      title: seo?.metaTitle || target.title,
+      description: seo?.metaDescription || target.summary,
       images: [
         {
           url:
             seo?.openGraphImage?.asset?.url ||
-            pkg.hero?.asset?.url ||
+            target.hero?.asset?.url ||
             'https://images.unsplash.com/photo-1544644181-1484b3fdfc62?auto=format&fit=crop&w=1200&q=80',
           width: 1200,
           height: 630,
@@ -85,159 +90,11 @@ export default async function PackageDetailPage({params}: PackagePageProps) {
     getSiteSettings(),
   ])
 
-  if (!pkg) {
-    // If not found in live Sanity Lake yet, check if it's the Andaman seed fallback
-    if (slug !== 'andaman-trip') {
-      return notFound()
-    }
-  }
+  const fallbackPkg = ALL_PACKAGES.find((p) => p.slug.current === slug)
+  const packageData = pkg || fallbackPkg
 
-  // Use Sanity package or fallback to Andaman reference data
-  const packageData = pkg || {
-    _id: 'pkg-andaman-trip',
-    _type: 'travelPackage',
-    title: 'Andaman Trip — Exotic 5D/4N Island Getaway',
-    slug: {current: 'andaman-trip'},
-    packageCode: 'HF-AND-01',
-    packageType: 'Domestic Tour',
-    categories: ['Heritage & Nature', 'Family Holiday', 'Beach & Backwaters', 'Honeymoon & Luxury'],
-    status: 'active',
-    duration: '4 N / 5 D',
-    rating: 4.8,
-    reviewCount: 48,
-    summary:
-      'PRIVATE CAB - Airport Pick Up + Port Blair Hotel to Cellular Jail + Corbyns Cove Beach + Havelock Jetty to Hotel + Radhanagar Beach + Neil Jetty to Hotel + Elephant Beach Snorkeling + Laxmanpur + Bharatpur + Natural Rock Formation + Airport Drop.\n\nTICKETS & ACTIVITIES - Cellular Jail Entry + Light & Sound Show + Cruise Port Blair to Havelock (Makruzz / Nautika Premium Class) + Cruise Havelock to Neil + Elephant Beach Boat Ride Tickets + Cruise Neil to Port Blair.\n\nHOTEL STAY - 2 Nights in Port Blair, 1 Night in Havelock, 1 Night in Neil Island with Complimentary Breakfast & Dinner.',
-    highlights: [
-      'All Island Sightseeing by Private Dedicated AC Vehicle',
-      'Makruzz / Nautika Premium Class Catamaran Cruise Tickets Included',
-      'Elephant Beach Speedboat Ride & Coral Reef Snorkeling',
-      'Radhanagar Beach Sunset (Ranked among Asia\'s Best Beaches)',
-      'Cellular Jail National Memorial Entry & Light and Sound Show',
-      '2 Nights Port Blair, 1 Night Havelock, 1 Night Neil with Breakfast + Dinner',
-    ],
-    destination: {
-      _id: 'dest-andaman',
-      _type: 'destination',
-      name: 'Andaman & Nicobar Islands',
-      slug: {current: 'andaman'},
-      region: 'Bay of Bengal',
-      bestTimeToVisit: 'October to May',
-    },
-    inclusions: [
-      'Accommodation in rooms as given at hotels in Port Blair, Havelock and Neil with breakfast + dinner and all taxes on Double sharing basis.',
-      'Daily breakfast except on day of arrival.',
-      'Meet and greet service at Veer Savarkar Airport, Port Blair.',
-      'All sightseeing by 01 Private AC Vehicle at all the islands (point to point within city limits).',
-      'Transfer to Port Blair / Havelock / Neil in Private Catamaran Nautika / Makruzz (Premium Class).',
-      'Full-day tour with all transfers including airport pick up and drop.',
-      'All entry tickets, ferry tickets and permit charges.',
-      'Packed breakfast provided if your tour or ferry departs early morning.',
-      'Dedicated Personal Tour Coordinator for single point of contact.',
-      'On-ground field executives at all major entry & exit points (Airport, Jetty, Jail, Water sports complex).',
-    ],
-    exclusions: [
-      'Lunch is not included unless explicitly chosen as a custom meal plan add-on.',
-      'Vehicle not at disposal at any of the islands (cabs are point to point as per itinerary).',
-      'No extra pickup or drop included for unscheduled dining/shopping.',
-      'Personal expenses, laundry, telephone calls, alcoholic & non-alcoholic beverages.',
-      'Any expense arising due to unforeseen weather or flight delays.',
-    ],
-    importantNotes: [
-      'Guest must carry valid government photo identification (Aadhaar / Passport / Voter ID) at all times.',
-      'Ferry sailing timings are subject to weather and port authorities\' discretion.',
-      'Hotels have standard checkout times (typically 9:00 AM - 10:00 AM). Luggage may be kept in reception kiosk for afternoon departures.',
-      'Snorkeling depends on harbor association safety regulations on that day.',
-    ],
-    cancellationPolicy: [
-      '30+ days prior to departure: 15% cancellation fee.',
-      '15 to 29 days prior to departure: 50% cancellation fee.',
-      'Less than 15 days prior to departure: 100% cancellation fee.',
-      'Cruise and flight tickets are subject to carrier cancellation terms.',
-    ],
-    pricing: {
-      _id: 'p1',
-      _type: 'pricing',
-      title: 'Standard Plan',
-      finalPrice: 24999,
-      displayPrice: 'Call Us / Custom Quote',
-      occupancy: 'Double Sharing (2 Adults)',
-      mealPlan: 'Complimentary Breakfast & Dinner (MAP)',
-    },
-    itinerary: [
-      {
-        _id: 'day-1',
-        _type: 'itineraryDay',
-        dayNumber: 1,
-        title: 'Airport Pickup, Carbyn\'s Cove Beach & Cellular Jail Light & Sound Show',
-        location: 'Port Blair',
-        description:
-          'Airport Welcome: Arrive at Veer Savarkar International Airport, Port Blair, where our HappyFlying representative greets you with warmth and assists with a smooth transfer to your hotel.\n\nCarbyn\'s Cove Beach: Stroll along the shoreline, enjoy the sea breeze, or relax by turquoise waters.\n\nCellular Jail Visit: Explore the historic corridors that narrate India\'s freedom struggle.\n\nLight & Sound Show: Watch the heroic chapters of Kala Pani come alive through light and narration.',
-        morning: 'Airport welcome and private cab transfer to hotel.',
-        afternoon: 'Seaside drive to Carbyn\'s Cove Beach.',
-        evening: 'Cellular Jail visit and historic Light & Sound Show.',
-        overnight: 'Overnight stay at Hotel in Port Blair',
-        meals: ['Dinner Included'],
-        importantNote: 'Airport pickup is timed according to your flight arrival.',
-      },
-      {
-        _id: 'day-2',
-        _type: 'itineraryDay',
-        dayNumber: 2,
-        title: 'Port Blair to Havelock (Private Cruise) & Radhanagar Beach Sunset',
-        location: 'Havelock Island (Swaraj Dweep)',
-        description:
-          'Private Cruise to Havelock: Board a premium private catamaran cruise (Makruzz / Nautika in Premium Class) to Havelock Island.\n\nResort Check-In: Smooth transfer to your beach resort for lunch and relaxation.\n\nRadhanagar Beach Sunset: In the afternoon, visit world-famous Radhanagar Beach (Beach No. 7). Walk along powdery white sands and witness an unforgettable sunset.',
-        morning: 'Morning private cruise to Havelock Island.',
-        afternoon: 'Resort check-in and leisure.',
-        evening: 'Radhanagar Beach sunset excursion.',
-        overnight: 'Overnight stay at Beach Resort in Havelock Island',
-        meals: ['Breakfast Included', 'Dinner Included'],
-        importantNote: 'Ferry tickets have allocated seats; please arrive at jetty 45 mins prior to sailing.',
-      },
-      {
-        _id: 'day-3',
-        _type: 'itineraryDay',
-        dayNumber: 3,
-        title: 'Elephant Beach Snorkeling & Cruise to Neil Island',
-        location: 'Neil Island (Shaheed Dweep)',
-        description:
-          'Speedboat to Elephant Beach: Ride across the waters to Havelock\'s richest coral reef.\n\nComplimentary Snorkeling: Explore vibrant underwater corals with a guided session.\n\nCruise to Neil Island: Board your afternoon private cruise to scenic Neil Island.\n\nLaxmanpur Beach Sunset: Enjoy a tranquil evening sunset at Laxmanpur Beach.',
-        morning: 'Elephant Beach speedboat trip & coral reef snorkeling.',
-        afternoon: 'Catamaran cruise to Neil Island and resort check-in.',
-        evening: 'Sunset walk at Laxmanpur Beach.',
-        overnight: 'Overnight stay at Resort in Neil Island',
-        meals: ['Breakfast Included', 'Dinner Included'],
-        importantNote: 'Snorkeling is subject to local weather and harbor safety permits.',
-      },
-      {
-        _id: 'day-4',
-        _type: 'itineraryDay',
-        dayNumber: 4,
-        title: 'Natural Rock Formation, Bharatpur Beach & Return to Port Blair',
-        location: 'Neil Island to Port Blair',
-        description:
-          'Natural Rock Formation: Visit Neil\'s living coral arch (Howrah Bridge) formed by ocean tides over centuries.\n\nBharatpur Beach: Enjoy the calm coral lagoon, perfect for swimming and relaxation.\n\nCruise to Port Blair: Board your private cruise back to Port Blair for your final evening.',
-        morning: 'Explore Natural Rock Formation and Bharatpur Beach.',
-        afternoon: 'Cruise from Neil Island back to Port Blair.',
-        evening: 'Port Blair hotel check-in & local souvenir shopping at Aberdeen Bazaar.',
-        overnight: 'Overnight stay at Hotel in Port Blair',
-        meals: ['Breakfast Included', 'Dinner Included'],
-        importantNote: 'Wear comfortable grip shoes for walking on the coral walkway at Natural Bridge.',
-      },
-      {
-        _id: 'day-5',
-        _type: 'itineraryDay',
-        dayNumber: 5,
-        title: 'Drop to Port Blair Airport with Sweet Memories',
-        location: 'Port Blair Departure',
-        description:
-          'Check out from your hotel with heart-warming memories of your exotic Andaman island adventure. Our representative drops you safely at Veer Savarkar International Airport for your flight back home.',
-        morning: 'Hotel checkout and assisted airport transfer in private vehicle.',
-        overnight: 'Departure Day',
-        meals: ['Breakfast Included'],
-        importantNote: 'Packed breakfast provided if your departure flight is early morning.',
-      },
-    ],
+  if (!packageData) {
+    return notFound()
   }
 
   const whatsappNumber = settings.whatsapp ? settings.whatsapp.replace(/[^0-9]/g, '') : '919900113691'

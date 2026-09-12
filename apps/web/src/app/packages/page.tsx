@@ -2,6 +2,7 @@ import type {Metadata} from 'next'
 import {Sparkles} from 'lucide-react'
 import {getAllPackages, getAllDestinations} from '@/lib/sanity/fetch'
 import {PackagesFilterView} from '@/components/PackagesFilterView'
+import {ALL_PACKAGES, ALL_DESTINATIONS} from '@/lib/data/packagesData'
 
 export const metadata: Metadata = {
   title: 'All Travel & Holiday Packages — HappyFlying',
@@ -15,39 +16,9 @@ export default async function PackagesPage() {
     getAllDestinations(),
   ])
 
-  // If live CMS has not seeded yet, fallback to Andaman package
-  const initialPackages =
-    packages.length > 0
-      ? packages
-      : [
-          {
-            _id: 'pkg-andaman-trip',
-            _type: 'travelPackage' as const,
-            title: 'Andaman Trip — Exotic 5D/4N Island Getaway',
-            slug: {current: 'andaman-trip'},
-            duration: '4 N / 5 D',
-            rating: 4.8,
-            reviewCount: 48,
-            packageType: 'Domestic Tour',
-            featured: true,
-            categories: ['Heritage & Nature', 'Beach & Backwaters', 'Honeymoon & Luxury'],
-            summary:
-              'PRIVATE CAB + Makruzz Cruise + 4-Star Resort + Elephant Beach Snorkeling + Cellular Jail Light & Sound Show.',
-            destination: {
-              _id: 'dest-andaman',
-              _type: 'destination' as const,
-              name: 'Andaman & Nicobar',
-              slug: {current: 'andaman'},
-            },
-            pricing: {
-              _id: 'p1',
-              _type: 'pricing' as const,
-              finalPrice: 24999,
-              displayPrice: 'Call Us / Custom Quote',
-              title: 'Standard',
-            },
-          },
-        ]
+  // Merge live Sanity packages or fallback to full verified collection
+  const initialPackages = packages.length > 0 ? packages : ALL_PACKAGES
+  const initialDestinations = destinations.length > 0 ? destinations : ALL_DESTINATIONS
 
   return (
     <div className="py-12 sm:py-20 px-4 sm:px-6 max-w-7xl mx-auto w-full">
