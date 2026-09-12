@@ -146,7 +146,7 @@ export function Footer({settings}: FooterProps) {
           </ul>
         </div>
 
-        {/* Sanity Studio & Assurance */}
+        {/* Certified Travel Partner */}
         <div className="space-y-4">
           <h3 className="font-bold text-sm uppercase tracking-wider text-[#F3B604]">
             Certified Travel Partner
@@ -154,19 +154,13 @@ export function Footer({settings}: FooterProps) {
           <p className="text-xs text-slate-300 leading-relaxed">
             Headquartered in Bangalore with 10+ years of travel excellence, 100% verified hotels, and dedicated point-of-contact tour coordinators.
           </p>
-          <div className="rounded-2xl border border-sky-700/40 bg-white/5 p-4 text-xs space-y-2">
-            <div className="font-semibold text-sky-300">100% CMS-Driven Platform</div>
+          <div className="rounded-2xl border border-white/10 bg-white/5 p-4 text-xs space-y-2">
+            <div className="flex items-center gap-2 text-emerald-400 font-semibold">
+              <span>✓</span> 100% Verified Stays & Cruises
+            </div>
             <p className="text-slate-400">
-              Content is powered live via Sanity.io Content Lake with instant visual editing.
+              Direct partnerships with 5-star properties, licensed island catamarans, and expert local tour managers.
             </p>
-            <a
-              href="http://localhost:3333"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-block text-[#F3B604] hover:underline font-medium text-xs mt-1"
-            >
-              Open Sanity Studio ↗
-            </a>
           </div>
         </div>
       </div>
