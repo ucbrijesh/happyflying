@@ -15,13 +15,15 @@ export const PACKAGES_QUERY = defineQuery(`
     reviewCount,
     summary,
     highlights,
-    hero {
+    "hero": coalesce(hero, heroImage, image) {
       asset->{
         _id,
         url,
         metadata { lqip, dimensions }
       },
-      alt
+      alt,
+      hotspot,
+      crop
     },
     destination->{
       _id,
@@ -56,13 +58,15 @@ export const FEATURED_PACKAGES_QUERY = defineQuery(`
     reviewCount,
     summary,
     highlights,
-    hero {
+    "hero": coalesce(hero, heroImage, image) {
       asset->{
         _id,
         url,
         metadata { lqip, dimensions }
       },
-      alt
+      alt,
+      hotspot,
+      crop
     },
     destination->{
       _id,
@@ -94,21 +98,25 @@ export const PACKAGE_BY_SLUG_QUERY = defineQuery(`
     reviewCount,
     summary,
     highlights,
-    hero {
+    "hero": coalesce(hero, heroImage, image) {
       asset->{
         _id,
         url,
         metadata { lqip, dimensions }
       },
-      alt
+      alt,
+      hotspot,
+      crop
     },
-    gallery[] {
+    "gallery": coalesce(gallery, images)[] {
       asset->{
         _id,
         url,
         metadata { lqip, dimensions }
       },
-      alt
+      alt,
+      hotspot,
+      crop
     },
     destination->{
       _id,
@@ -222,9 +230,11 @@ export const PACKAGE_BY_SLUG_QUERY = defineQuery(`
       title,
       "slug": slug.current,
       duration,
-      hero {
+      "hero": coalesce(hero, heroImage, image) {
         asset->{ _id, url, metadata { lqip, dimensions } },
-        alt
+        alt,
+        hotspot,
+        crop
       },
       destination->{ name },
       pricing->{ displayPrice, finalPrice }

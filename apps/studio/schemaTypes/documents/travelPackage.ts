@@ -125,7 +125,8 @@ export const travelPackage = defineType({
       title: 'Hero / Main Banner Image',
       type: 'imageWithAlt',
       group: 'overview',
-      validation: (rule) => rule.required(),
+      description: 'Upload the main cover image used on package cards, banners, and detail pages.',
+      validation: (rule) => rule.required().warning('A hero image is strongly recommended for public display'),
     }),
     defineField({
       name: 'gallery',
